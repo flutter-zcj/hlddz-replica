@@ -1,0 +1,19 @@
+{
+  "env": "dev",
+  "debug": true,
+  "node": {
+    "game": [
+      {
+        "node_id": "ddz-1",
+        "address": "0.0.0.0:9104",
+        "rpc_address": "",
+        "enabled": true,
+        "__settings__": {
+          "room": "classic",
+          "base_score": 100,
+          "robot_fill": true
+        }
+      }
+    ]
+  }
+}
