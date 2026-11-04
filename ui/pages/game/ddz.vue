@@ -2,6 +2,10 @@
   <view class="ddz-page">
     <view id="ddz-canvas" class="ddz-canvas"></view>
     <view v-if="tips" class="ddz-tips">{{ tips }}</view>
+    <view class="ddz-rotate">
+      <view class="rotate-icon"></view>
+      <text class="rotate-txt">请将设备横屏以获得最佳体验</text>
+    </view>
   </view>
 </template>
 
@@ -37,6 +41,12 @@ export default
     };
   },
 
+
+  beforeDestroy()
+  {
+    this.restorePcAdapt();
+  },
+
   mounted()
   {
     this.audio = new DdzAudio();
@@ -51,6 +61,37 @@ export default
   methods:
   {
     /**
+     * 解除宿主工程的 PC 宽屏适配，避免横屏页面被装入竖屏模拟框
+     * @returns {void}
+     */
+    clearPcAdapt()
+    {
+      document.body.removeAttribute('adapt');
+      const el = document.querySelector('uni-adapt-pc');
+      if (el)
+      {
+        el.style.display = 'none';
+      }
+    },
+
+    /**
+     * 离开页面时恢复 PC 宽屏适配
+     * @returns {void}
+     */
+    restorePcAdapt()
+    {
+      const el = document.querySelector('uni-adapt-pc');
+      if (el)
+      {
+        el.style.display = '';
+      }
+      if (window.innerWidth >= 768)
+      {
+        document.body.setAttribute('adapt', 'pc');
+      }
+    },
+
+    /**
      * 初始化 Phaser 与网络连接
      * @returns {void}
      */
@@ -62,6 +103,7 @@ export default
         this.tips = '游戏引擎未加载';
         return;
       }
+      this.clearPcAdapt();
       this.$nextTick(() =>
       {
         const SceneClass = createDdzScene(Phaser, {
@@ -77,8 +119,8 @@ export default
         this.game = new Phaser.Game({
           type: Phaser.AUTO,
           parent: 'ddz-canvas',
-          width: 750,
-          height: 1334,
+          width: 1334,
+          height: 750,
           backgroundColor: '#4a0f09',
           scale:
           {
@@ -384,8 +426,13 @@ export default
 </script>
 
 <style lang="scss" scoped>
-.ddz-page { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; background: #07291a; }
+.ddz-page { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; background: #4a0f09; }
 .ddz-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .ddz-tips { position: absolute; bottom: 120rpx; left: 50%; transform: translateX(-50%); padding: 12rpx 28rpx; border-radius: 32rpx; background: rgba(0, 0, 0, 0.6); color: #ffe9a8; font-size: 26rpx; }
 .ddz-back { position: absolute; top: 40rpx; left: 24rpx; padding: 10rpx 24rpx; border-radius: 28rpx; background: rgba(0, 0, 0, 0.45); color: #ffffff; font-size: 26rpx; }
+.ddz-rotate { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999; background: #4a0f09; flex-direction: column; align-items: center; justify-content: center; }
+.rotate-icon { width: 120rpx; height: 76rpx; border: 8rpx solid #ffd45e; border-radius: 14rpx; margin-bottom: 30rpx; animation: ddz-turn 1.6s ease-in-out infinite; }
+.rotate-txt { color: #ffe9a8; font-size: 30rpx; text-align: center; padding: 0 60rpx; }
+@keyframes ddz-turn { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(90deg); } }
+@media (orientation: portrait) { .ddz-rotate { display: flex; } }
 </style>

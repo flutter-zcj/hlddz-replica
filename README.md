@@ -2,7 +2,7 @@
 
 对腾讯《欢乐斗地主》（Android `com.qqgame.hlddz` 8.050.016 / 微信小游戏 `wxd0e404d795ea6f80`）的界面与玩法复刻。
 
-前端是 **uni-app + Phaser 3.90**，后端是 **Go + cherry-game**。界面按官方实机截图与 APK 内配置表逐项对齐，牌局逻辑按配置表抽取的规则实现。
+前端是 **uni-app + Phaser 3.90**，后端是 **Go + cherry-game**。**横屏设计**，逻辑分辨率 1334x750。界面按官方实机截图与 APK 内配置表逐项对齐，牌局逻辑按配置表抽取的规则实现。
 
 ---
 
@@ -24,7 +24,7 @@
 hlddz-replica/
 ├── ui/                        前端（可直接并入 uni-app 工程）
 │   ├── pages/game/
-│   │   ├── hall.vue           游戏大厅
+│   │   ├── hall.vue           游戏大厅（1334x750 设计稿，运行时等比缩放）
 │   │   ├── ddz.vue            牌桌页面外壳（连接、音效调度）
 │   │   ├── ddz-game.js        Phaser 牌桌场景（布局、交互、特效）
 │   │   ├── ddz-theme.js       视觉主题与绘制原语（木框、绒布、牌面、头像）
@@ -68,7 +68,9 @@ python3 -m http.server 8080
 { "path": "pages/game/ddz",  "style": { "navigationStyle": "custom", "backgroundColor": "#4a0f09" } }
 ```
 
-页面按 750×1334 逻辑分辨率设计，`Scale.FIT` 自适应。后端地址在 `ddz-net.js` 顶部 `WS_URL` 配置。
+页面按 1334x750 横屏逻辑分辨率设计，`Scale.FIT` 自适应。后端地址在 `ddz-net.js` 顶部 `WS_URL` 配置。
+
+宿主工程需要打开横屏：`manifest.json` 的 `app-plus` 中加 `"screenOrientation": ["landscape-primary"]`，游戏两页的 `pages.json` style 中加 `"pageOrientation": "landscape"`。若工程启用了 PC 宽屏适配（页面被装入竖屏模拟 iframe），游戏页会在进入时自动解除、离开时恢复。
 
 ### 3. 启动后端
 
@@ -137,7 +139,7 @@ WebSocket，**换行分隔 JSON（NDJSON）**。每帧一条完整 JSON，以 `\
 | 牌型特效 | `ItemInfoCfg3D` | 炸弹、王炸、春天三类特效节点 |
 | 桌面配色 | `UITableStyleCfg` | `#a4632e` 木框 / `#5c6181` 辅色 |
 | 规则骨架 | `PlayModeRuleCfg3D[54][55]` | 两级压制与炸弹倍数 |
-| 版式比例 | 720×1280 实机截图 | 750×1334 等比映射 |
+| 版式比例 | 实机横屏截图 | 1334x750 等比映射 |
 
 ---
 

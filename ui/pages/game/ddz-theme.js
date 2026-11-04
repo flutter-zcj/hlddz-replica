@@ -1,17 +1,17 @@
 /**
  * @file 斗地主视觉主题。
  * 配色与尺寸由宁波地主实机 UI 效果图（1450x864 对局 / 1194x670 大厅）逐像素取色，
- * 等比换算到 750x1334 逻辑分辨率，集中在此处便于统一微调。
+ * 等比换算到 1334x750 横屏逻辑分辨率，集中在此处便于统一微调。
  *
  * 对局视觉骨架：酒红木质外框 + 金黄绒布桌面 + 橙金描边 + 顶部地主牌红框。
  * 大厅视觉骨架：淡蓝紫城市剪影 + 左侧排行榜 + 右侧宫格 + 底部深红导航条。
  */
 
-/** 逻辑分辨率宽度 */
-export const W = 750
+/** 逻辑分辨率宽度（横屏） */
+export const W = 1334
 
-/** 逻辑分辨率高度 */
-export const H = 1334
+/** 逻辑分辨率高度（横屏） */
+export const H = 750
 
 /** 手牌尺寸 */
 export const CARD_W = 84
@@ -234,23 +234,23 @@ export function drawCard(scene, x, y, card, faceUp, scale, compact)
   if (isJoker)
   {
     const letters = scene.add
-      .text(0, -6 * k, 'JOKER', {
+      .text(-w / 2 + 9 * k, -h / 2 + 26 * k, 'JOKER', {
         fontFamily: 'Arial Black, Arial, sans-serif',
-        fontSize: String(Math.round(12 * k)) + 'px',
+        fontSize: String(Math.round(13 * k)) + 'px',
         color: css(tone),
         fontStyle: 'bold'
       })
-      .setOrigin(0.5)
+      .setOrigin(0, 0.5)
       .setAngle(-90)
     box.add(letters)
     const mark = scene.add
-      .text(-w / 2 + 8 * k, h / 2 - 20 * k, rank === 17 ? '大' : '小', {
+      .text(w / 2 - 9 * k, h / 2 - 18 * k, rank === 17 ? '大' : '小', {
         fontFamily: 'sans-serif',
         fontSize: String(Math.round(18 * k)) + 'px',
         color: css(tone),
         fontStyle: 'bold'
       })
-      .setOrigin(0, 0.5)
+      .setOrigin(1, 0.5)
     box.add(mark)
     const star = scene.add
       .text(0, 0, '★', {
@@ -670,7 +670,8 @@ export function drawWoodFrame(scene)
   g.fillRect(20, 20, W - 40, H - 40)
 
   g.lineStyle(2, 0x4a0f09, 0.6)
-  for (let i = 0; i < 26; i += 1)
+  const woodLines = Math.floor((H - 24) / 52)
+  for (let i = 1; i < woodLines; i += 1)
   {
     const y = 12 + i * 52
     g.lineBetween(10, y, W - 10, y)

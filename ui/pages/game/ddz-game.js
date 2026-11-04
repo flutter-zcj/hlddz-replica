@@ -1,6 +1,6 @@
 /**
  * @file 斗地主牌桌 Phaser 3 场景。
- * 逻辑分辨率 750x1334，由 Scale.FIT 适配屏幕。
+ * 逻辑分辨率 1334x750（横屏），由 Scale.FIT 适配屏幕。
  * 视觉依据宁波地主实机对局截图逐元素对齐：
  * 酒红木质外框与四角雕花、金黄绒布圆角桌面、顶部地主牌红框、
  * 红青双色分数大字、青绿“不出”印章、叶形牌型标签、大牌面手牌。
@@ -29,29 +29,29 @@ import {
 
 /** 座位布局：索引 0 为自己（左下），1 为右对手，2 为左对手 */
 const SEAT_POS = [
-  { x: 106, y: 892 },
-  { x: 644, y: 318 },
-  { x: 106, y: 318 }
+  { x: 96, y: 592 },
+  { x: 1214, y: 296 },
+  { x: 120, y: 296 }
 ]
 
 /** 座位对应的本局分数显示位置 */
 const SCORE_POS = [
-  { x: 268, y: 892 },
-  { x: 482, y: 318 },
-  { x: 268, y: 318 }
+  { x: 252, y: 592 },
+  { x: 1214, y: 446 },
+  { x: 120, y: 446 }
 ]
 
 /** 自己手牌基线 y */
-const HAND_Y = 1148
+const HAND_Y = 598
 
 /** 绒布桌面矩形 */
-const TABLE = { x: 30, y: 172, w: 690, h: 800, radius: 44 }
+const TABLE = { x: 24, y: 104, w: 1286, h: 560, radius: 44 }
 
 /** 出牌区中心 */
-const PLATE = { x: 375, y: 640 }
+const PLATE = { x: 667, y: 316 }
 
 /** 操作按钮基线 y */
-const ACTION_Y = 1032
+const ACTION_Y = 452
 
 /**
  * 创建牌桌场景类
@@ -120,23 +120,23 @@ export default function createDdzScene(Phaser, hooks)
     {
       const g = this.add.graphics()
       g.fillStyle(0x5e1809, 1)
-      g.fillRect(0, 0, W, 104)
+      g.fillRect(0, 0, W, 88)
       g.fillStyle(COLOR.barBg, 1)
-      g.fillRect(0, 0, W, 98)
+      g.fillRect(0, 0, W, 82)
       g.fillStyle(0x8a2c14, 1)
-      g.fillRect(0, 0, W, 46)
+      g.fillRect(0, 0, W, 38)
       g.fillStyle(0xffffff, 0.08)
-      g.fillRect(0, 0, W, 12)
+      g.fillRect(0, 0, W, 10)
       g.lineStyle(3, COLOR.woodTrim, 0.9)
-      g.lineBetween(0, 98, W, 98)
+      g.lineBetween(0, 82, W, 82)
       g.lineStyle(1.5, 0x3a0c06, 0.6)
-      g.lineBetween(0, 102, W, 102)
+      g.lineBetween(0, 86, W, 86)
 
-      this.buildIconButton(42, 52, 'gift', () => this.toast('每日礼包待领取'))
-      this.buildIconButton(102, 52, 'smile', () => this.toggleChat())
+      this.buildIconButton(46, 44, 'gift', () => this.toast('每日礼包待领取'))
+      this.buildIconButton(104, 44, 'smile', () => this.toggleChat())
 
       this.roomText = this.add
-        .text(148, 34, '经典场 · 1/3', {
+        .text(156, 28, '经典场 · 1/3', {
           fontFamily: 'sans-serif',
           fontSize: '23px',
           color: '#ffe9c4',
@@ -145,7 +145,7 @@ export default function createDdzScene(Phaser, hooks)
         .setOrigin(0, 0.5)
       this.roomText.setShadow(0, 2, '#3a0c06', 2)
       this.baseText = this.add
-        .text(148, 70, '底分 0', {
+        .text(156, 60, '底分 0', {
           fontFamily: 'sans-serif',
           fontSize: '21px',
           color: '#ffcf8a'
@@ -154,18 +154,18 @@ export default function createDdzScene(Phaser, hooks)
 
       const frame = this.add.graphics()
       frame.fillStyle(0x3a0c06, 0.9)
-      frame.fillRoundedRect(298, 10, 154, 78, 12)
+      frame.fillRoundedRect(592, 8, 150, 68, 12)
       frame.fillStyle(0x9c2a12, 1)
-      frame.fillRoundedRect(302, 14, 146, 70, 10)
+      frame.fillRoundedRect(596, 12, 142, 60, 10)
       frame.lineStyle(2.5, COLOR.woodTrim, 1)
-      frame.strokeRoundedRect(302, 14, 146, 70, 10)
+      frame.strokeRoundedRect(596, 12, 142, 60, 10)
       frame.lineStyle(1.5, 0xfff0c4, 0.35)
-      frame.strokeRoundedRect(308, 20, 134, 58, 8)
+      frame.strokeRoundedRect(602, 18, 130, 48, 8)
 
-      this.bottomSlot = this.add.container(375, 49)
+      this.bottomSlot = this.add.container(667, 42)
 
-      this.buildIconButton(652, 52, 'gear', () => this.toast('设置'))
-      this.buildIconButton(712, 52, 'door', () =>
+      this.buildIconButton(1222, 44, 'gear', () => this.toast('设置'))
+      this.buildIconButton(1280, 44, 'door', () =>
       {
         if (hooks.onAction)
         {
@@ -250,23 +250,23 @@ export default function createDdzScene(Phaser, hooks)
     buildSideInfo()
     {
       this.clockText = this.add
-        .text(714, 792, '--:--', {
+        .text(W - 54, 152, '--:--', {
           fontFamily: 'sans-serif',
           fontSize: '26px',
           color: '#9a5a18'
         })
         .setOrigin(1, 0.5)
       this.winText = this.add
-        .text(714, 838, '胜局 0/0', {
+        .text(W - 54, 192, '胜局 0/0', {
           fontFamily: 'sans-serif',
-          fontSize: '22px',
+          fontSize: '20px',
           color: '#b07a34'
         })
         .setOrigin(1, 0.5)
       this.roundText = this.add
-        .text(714, 872, '对局 0/0', {
+        .text(W - 54, 226, '对局 0/0', {
           fontFamily: 'sans-serif',
-          fontSize: '22px',
+          fontSize: '20px',
           color: '#b07a34'
         })
         .setOrigin(1, 0.5)
@@ -325,6 +325,7 @@ export default function createDdzScene(Phaser, hooks)
           nameText.setVisible(false)
           coinIcon.setVisible(false)
           badge.setPosition(60, -32)
+          lordTag.setPosition(-56, -46)
         }
         box.add([avatar, nameText, coinIcon, lordTag, badge])
         this.seatNodes.push({ box, avatar, nameText, coinText, lordTag, badge, role: i })
@@ -339,8 +340,9 @@ export default function createDdzScene(Phaser, hooks)
 
       this.stampNodes = SCORE_POS.map((p, i) =>
       {
-        const sy = i === 0 ? p.y - 90 : p.y + 86
-        const s = drawStamp(this, p.x, sy, '不出')
+        const sx = i === 0 ? p.x + 150 : p.x
+        const sy = i === 0 ? p.y - 96 : p.y + 88
+        const s = drawStamp(this, sx, sy, '不出')
         s.setAlpha(0)
         return s
       })
@@ -365,12 +367,12 @@ export default function createDdzScene(Phaser, hooks)
     {
       const tray = this.add.graphics()
       tray.fillStyle(0x3a0c06, 0.55)
-      tray.fillRect(0, HAND_Y - CARD_H / 2 - 30, W, CARD_H / 2 + 66)
+      tray.fillRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, CARD_H / 2 + 66)
       tray.fillStyle(COLOR.woodTrim, 0.45)
-      tray.fillRect(0, HAND_Y - CARD_H / 2 - 30, W, 3)
+      tray.fillRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, 3)
       this.handContainer = this.add.container(0, 0)
       this.selectedLabel = this.add
-        .text(150, 1002, '', {
+        .text(262, HAND_Y - 128, '', {
           fontFamily: 'sans-serif',
           fontSize: '24px',
           color: '#fff0c4',
@@ -408,9 +410,9 @@ export default function createDdzScene(Phaser, hooks)
         })
         this.buttons[key] = btn
       }
-      mk('hint', '提示', 404, COLOR.btnSecondary, 116)
-      mk('pass', '不出', 532, COLOR.btnSecondary, 116)
-      mk('play', '出牌', 664, COLOR.btnPrimary, 124)
+      mk('hint', '提示', 523, COLOR.btnSecondary, 116)
+      mk('pass', '不出', 663, COLOR.btnSecondary, 116)
+      mk('play', '出牌', 803, COLOR.btnPrimary, 124)
       this.setButtonsEnabled(false)
     }
 
@@ -422,14 +424,14 @@ export default function createDdzScene(Phaser, hooks)
     {
       const g = this.add.graphics()
       g.fillStyle(0x4a0f09, 1)
-      g.fillRect(0, H - 92, W, 92)
+      g.fillRect(0, H - 74, W, 74)
       g.fillStyle(COLOR.barBg, 1)
-      g.fillRect(0, H - 88, W, 88)
+      g.fillRect(0, H - 70, W, 70)
       g.lineStyle(3, COLOR.woodTrim, 0.9)
-      g.lineBetween(0, H - 92, W, H - 92)
+      g.lineBetween(0, H - 74, W, H - 74)
 
       this.multiText = this.add
-        .text(40, H - 44, '倍数 x1', {
+        .text(36, H - 36, '倍数 x1', {
           fontFamily: 'sans-serif',
           fontSize: '25px',
           color: '#ffe9a8',
@@ -438,9 +440,9 @@ export default function createDdzScene(Phaser, hooks)
         .setOrigin(0, 0.5)
       this.multiText.setShadow(0, 2, '#3a0c06', 3)
 
-      drawBean(this, 164, H - 44, 24)
+      drawBean(this, 180, H - 36, 24)
       this.beanText = this.add
-        .text(180, H - 44, '0', {
+        .text(196, H - 36, '0', {
           fontFamily: 'sans-serif',
           fontSize: '23px',
           color: '#ffd9a0'
@@ -448,10 +450,10 @@ export default function createDdzScene(Phaser, hooks)
         .setOrigin(0, 0.5)
 
       const swap = drawButton(this, {
-        x: 412,
-        y: H - 44,
-        w: 136,
-        h: 56,
+        x: 1046,
+        y: H - 36,
+        w: 140,
+        h: 54,
         text: '切换形象',
         fill: COLOR.btnPurple,
         fontSize: 23
@@ -459,10 +461,10 @@ export default function createDdzScene(Phaser, hooks)
       swap.on('pointerdown', () => this.toast('形象切换开放中'))
 
       const auto = drawButton(this, {
-        x: 552,
-        y: H - 44,
-        w: 108,
-        h: 56,
+        x: 1214,
+        y: H - 36,
+        w: 104,
+        h: 54,
         text: '托管',
         fill: COLOR.btnMuted,
         fontSize: 23
@@ -477,10 +479,10 @@ export default function createDdzScene(Phaser, hooks)
       this.autoButton = auto
 
       const chat = drawButton(this, {
-        x: 664,
-        y: H - 44,
-        w: 84,
-        h: 56,
+        x: 1294,
+        y: H - 36,
+        w: 74,
+        h: 54,
         text: '聊天',
         fill: COLOR.btnChat,
         fontSize: 23
@@ -595,7 +597,7 @@ export default function createDdzScene(Phaser, hooks)
     {
       const pos = SEAT_POS[seatIdx] || SEAT_POS[0]
       const dir = seatIdx === 0 ? 1 : (seatIdx === 1 ? -1 : 1)
-      const box = this.add.container(pos.x + dir * 110, pos.y - 100).setDepth(50)
+      const box = this.add.container(pos.x + dir * 120, pos.y - 96).setDepth(50)
       const label = this.add
         .text(0, 0, text, {
           fontFamily: 'sans-serif',
@@ -709,7 +711,7 @@ export default function createDdzScene(Phaser, hooks)
       const w = n >= 4 ? 104 : n === 3 ? 116 : 140
       const gap = 10
       const total = n * w + (n - 1) * gap
-      const start = 718 - total + w / 2
+      const start = Math.round(W / 2 - total / 2 + w / 2)
       seq.forEach((s, i) =>
       {
         const btn = drawButton(this, {
@@ -862,7 +864,7 @@ export default function createDdzScene(Phaser, hooks)
         return
       }
       const n = cards.length
-      const step = Math.min(CARD_W * 0.7, (W - 260) / Math.max(n, 1))
+      const step = Math.min(CARD_W * 0.7, (W - 560) / Math.max(n, 1))
       cards.forEach((card, i) =>
       {
         const offset = (i - (n - 1) / 2) * step
@@ -892,7 +894,7 @@ export default function createDdzScene(Phaser, hooks)
         return
       }
       const n = cards.length
-      const maxSpan = W - 56
+      const maxSpan = W - 210
       const step = n > 1 ? Math.min(CARD_W * 0.62, (maxSpan - CARD_W) / (n - 1)) : 0
       const totalW = step * (n - 1) + CARD_W
       const startX = (W - totalW) / 2 + CARD_W / 2
@@ -916,7 +918,7 @@ export default function createDdzScene(Phaser, hooks)
           else
           {
             this.selected.add(key)
-            node.y = HAND_Y - 30
+            node.y = HAND_Y - 28
           }
           this.selectedLabel.setText(this.selected.size ? '已选 ' + this.selected.size + ' 张' : '')
           if (hooks.onSelect)
