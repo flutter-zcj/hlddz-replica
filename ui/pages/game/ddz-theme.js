@@ -84,7 +84,27 @@ export const COLOR = {
   /** 负分红 */
   scoreDown: 0xe23b2c,
   /** 不出印章青绿 */
-  stamp: 0x35c9a8
+  stamp: 0x35c9a8,
+  /** 牌桌外圈深绿 */
+  rimDark: 0x0d4433,
+  /** 牌桌外圈主色 */
+  rimMain: 0x1a7554,
+  /** 牌桌外圈亮部 */
+  rimLight: 0x37a87c,
+  /** 皮革桌面暗部 */
+  leatherDark: 0x5a2711,
+  /** 皮革桌面主色 */
+  leatherMain: 0x7c3c1b,
+  /** 皮革桌面亮部 */
+  leatherLight: 0xab6833,
+  /** 皮革缝线 */
+  leatherStitch: 0xe8cda6,
+  /** 金边暗部 */
+  goldEdge: 0x8a5a12,
+  /** 金边高光 */
+  goldLight: 0xffeaa8,
+  /** 深色蒙版面板 */
+  panel: 0x150a04
 }
 
 /** 花色字符，索引与牌数据 suit 对齐：0 方片 1 梅花 2 红桃 3 黑桃 */
@@ -311,6 +331,52 @@ export function drawCard(scene, x, y, card, faceUp, scale, compact)
  */
 export function drawAvatar(scene, x, y, radius, nickname, role)
 {
+  const key = 'avatar' + role
+  if (!scene.textures.exists(key))
+  {
+    return drawAvatarVector(scene, x, y, radius, nickname, role)
+  }
+  const box = scene.add.container(x, y)
+  const r = radius
+  const shadow = scene.add.graphics()
+  shadow.fillStyle(0x0a2a20, 0.32)
+  shadow.fillEllipse(0, r * 0.98, r * 1.62, r * 0.46)
+  box.add(shadow)
+
+  const pic = scene.add.image(0, 0, key)
+  pic.setDisplaySize(r * 2, r * 2)
+  box.add(pic)
+
+  const ring = scene.add.graphics()
+  ring.lineStyle(7, 0x4a2206, 1)
+  ring.strokeCircle(0, 0, r + 3)
+  ring.lineStyle(4.5, 0xffd45e, 1)
+  ring.strokeCircle(0, 0, r + 3)
+  ring.lineStyle(1.5, 0xfff6d6, 0.95)
+  ring.strokeCircle(0, 0, r + 6.5)
+  ring.lineStyle(3, 0xffffff, 0.4)
+  ring.beginPath()
+  ring.arc(0, 0, r + 2, Math.PI * 1.12, Math.PI * 1.52, false)
+  ring.strokePath()
+  box.add(ring)
+  box.setLabel = () =>
+  {
+  }
+  return box
+}
+
+/**
+ * 矢量头像兜底：素材缺失时按座位绘制卡通形象
+ * @param {Object} scene Phaser 场景
+ * @param {number} x 中心 x
+ * @param {number} y 中心 y
+ * @param {number} radius 半径
+ * @param {string} nickname 昵称
+ * @param {number} role 形象编号 0/1/2
+ * @returns {Object} 容器
+ */
+function drawAvatarVector(scene, x, y, radius, nickname, role)
+{
   const box = scene.add.container(x, y)
   const g = scene.add.graphics()
   const r = radius
@@ -396,16 +462,22 @@ export function drawButton(scene, opts)
   const box = scene.add.container(x, y)
   const g = scene.add.graphics()
 
-  g.fillStyle(0x3a1206, 0.45)
-  g.fillRoundedRect(-w / 2, -h / 2 + 4, w, h, radius)
+  g.fillStyle(0x2a0c02, 0.34)
+  g.fillRoundedRect(-w / 2, -h / 2 + 6, w, h, radius)
+  g.fillStyle(0x2a0c02, 0.16)
+  g.fillRoundedRect(-w / 2 - 3, -h / 2 - 3, w + 6, h + 6, radius + 3)
   g.fillStyle(fillDeep, 1)
   g.fillRoundedRect(-w / 2, -h / 2, w, h, radius)
   g.fillStyle(fill, 1)
-  g.fillRoundedRect(-w / 2, -h / 2, w, h - 5, radius)
-  g.fillStyle(0xffffff, 0.3)
-  g.fillRoundedRect(-w / 2 + 5, -h / 2 + 4, w - 10, h * 0.34, radius * 0.7)
-  g.lineStyle(2, 0xfff4d6, 0.7)
+  g.fillRoundedRect(-w / 2, -h / 2, w, h - 6, radius)
+  g.fillStyle(0xffffff, 0.2)
+  g.fillRoundedRect(-w / 2 + 4, -h / 2 + 3, w - 8, h * 0.44, radius * 0.8)
+  g.fillStyle(0xffffff, 0.14)
+  g.fillRoundedRect(-w / 2 + 4, -h / 2 + 3, w - 8, h * 0.22, radius * 0.8)
+  g.lineStyle(2.5, 0xffe9a8, 0.95)
   g.strokeRoundedRect(-w / 2, -h / 2, w, h - 5, radius)
+  g.lineStyle(1, 0xffffff, 0.45)
+  g.strokeRoundedRect(-w / 2 + 3, -h / 2 + 3, w - 6, h - 11, radius - 2)
   box.add(g)
 
   const label = scene.add
@@ -416,7 +488,8 @@ export function drawButton(scene, opts)
       fontStyle: 'bold'
     })
     .setOrigin(0.5)
-  label.setShadow(0, 2, '#5c2600', 3)
+  label.setShadow(0, 3, '#4a1a00', 4)
+  label.setStroke('#7a3200', 3)
   box.add(label)
 
   box.setSize(w, h)
@@ -536,22 +609,89 @@ export function drawFeltGradient(scene, cx, cy, rw, rh, base, steps)
  */
 export function drawFeltRect(scene, rect)
 {
-  const { x, y, w, h, radius } = rect
+  const pad = 27
+  const radius = rect.radius - 12
+  const x = rect.x + pad
+  const y = rect.y + pad
+  const w = rect.w - pad * 2
+  const h = rect.h - pad * 2
   const g = scene.add.graphics()
-  const n = 14
+  const n = 18
   for (let i = n; i >= 1; i -= 1)
   {
     const t = i / n
-    const color = shade(COLOR.feltLight, 0.88 + (1 - t) * 0.12)
+    const color = shade(COLOR.leatherDark, 1.05 + (1 - t) * 0.62)
     g.fillStyle(color, 1)
-    const iw = w - (1 - t) * 26
-    const ih = h - (1 - t) * 26
+    const iw = w - (1 - t) * 34
+    const ih = h - (1 - t) * 30
     g.fillRoundedRect(x + (w - iw) / 2, y + (h - ih) / 2, iw, ih, radius)
   }
-  g.lineStyle(4, COLOR.feltEdge, 1)
-  g.strokeRoundedRect(x, y, w, h, radius)
-  g.lineStyle(2, 0xfff0c4, 0.5)
-  g.strokeRoundedRect(x + 6, y + 6, w - 12, h - 12, radius - 4)
+
+  const grain = scene.add.graphics()
+  for (let i = 0; i < 900; i += 1)
+  {
+    const px = x + 18 + Math.random() * (w - 36)
+    const py = y + 18 + Math.random() * (h - 36)
+    const dark = Math.random() > 0.45
+    grain.fillStyle(dark ? 0x3d1a08 : 0xd08a52, dark ? 0.05 : 0.045)
+    grain.fillRect(px, py, 2 + Math.random() * 2, 1.5)
+  }
+
+  g.lineStyle(3, COLOR.leatherStitch, 0.42)
+  const sx = x + 26
+  const sy = y + 26
+  const sw = w - 52
+  const sh = h - 52
+  const dash = 12
+  for (let px = sx; px < sx + sw; px += dash * 2)
+  {
+    g.lineBetween(px, sy, Math.min(px + dash, sx + sw), sy)
+    g.lineBetween(px, sy + sh, Math.min(px + dash, sx + sw), sy + sh)
+  }
+  for (let py = sy; py < sy + sh; py += dash * 2)
+  {
+    g.lineBetween(sx, py, sx, Math.min(py + dash, sy + sh))
+    g.lineBetween(sx + sw, py, sx + sw, Math.min(py + dash, sy + sh))
+  }
+
+  const glow = scene.add.graphics()
+  glow.fillStyle(0xffd9a0, 0.07)
+  glow.fillEllipse(x + w / 2, y + h * 0.42, w * 0.66, h * 0.62)
+  glow.lineStyle(4, 0x2a1206, 0.28)
+  glow.strokeRoundedRect(x + 30, y + 30, w - 60, h - 60, radius - 12)
+
+  const cx = x + w / 2
+  const cy = y + h * 0.46
+  glow.lineStyle(2, 0xffe0a8, 0.1)
+  glow.strokeCircle(cx, cy, 168)
+  glow.lineStyle(1, 0xffe0a8, 0.07)
+  glow.strokeCircle(cx, cy, 148)
+  glow.lineStyle(1, 0xffe0a8, 0.05)
+  glow.strokeCircle(cx, cy, 196)
+
+  const suits = ['♠', '♥', '♣', '♦']
+  suits.forEach((s, i) =>
+  {
+    const a = Math.PI * 0.5 * i + Math.PI * 0.25
+    const t = scene.add
+      .text(cx + Math.cos(a) * 172, cy + Math.sin(a) * 172, s, {
+        fontFamily: 'sans-serif',
+        fontSize: '34px',
+        color: '#ffe0a8'
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.09)
+  })
+
+  const mark = scene.add
+    .text(cx, cy, '欢乐斗地主', {
+      fontFamily: 'sans-serif',
+      fontSize: '46px',
+      color: '#ffe0a8',
+      fontStyle: 'bold'
+    })
+    .setOrigin(0.5)
+    .setAlpha(0.08)
 }
 
 /**
@@ -659,28 +799,61 @@ export function drawPatternTag(scene, x, y, text)
  */
 export function drawWoodFrame(scene)
 {
-  const g = scene.add.graphics()
-  g.fillStyle(COLOR.woodDark, 1)
-  g.fillRect(0, 0, W, H)
-  g.fillStyle(COLOR.woodMain, 1)
-  g.fillRect(8, 8, W - 16, H - 16)
-  g.fillStyle(COLOR.woodLight, 1)
-  g.fillRect(14, 14, W - 28, H - 28)
-  g.fillStyle(COLOR.woodMain, 1)
-  g.fillRect(20, 20, W - 40, H - 40)
-
-  g.lineStyle(2, 0x4a0f09, 0.6)
-  const woodLines = Math.floor((H - 24) / 52)
-  for (let i = 1; i < woodLines; i += 1)
+  if (scene.textures.exists('bgTable'))
   {
-    const y = 12 + i * 52
-    g.lineBetween(10, y, W - 10, y)
+    const bg = scene.add.image(0, 0, 'bgTable').setOrigin(0)
+    bg.setDisplaySize(W, H)
+  }
+  else
+  {
+    const sky = scene.add.graphics()
+    sky.fillStyle(0x8fd3ff, 1)
+    sky.fillRect(0, 0, W, H)
+    sky.fillStyle(0xd6f0ff, 0.85)
+    sky.fillRect(0, H * 0.55, W, H * 0.45)
   }
 
-  g.lineStyle(3, COLOR.woodTrim, 0.9)
-  g.strokeRect(24, 24, W - 48, H - 48)
-  g.lineStyle(1.5, 0x3a0c06, 0.55)
-  g.strokeRect(28, 28, W - 56, H - 56)
+  const veil = scene.add.graphics()
+  veil.fillStyle(0x0b2f4a, 0.1)
+  veil.fillRect(0, 0, W, H)
+
+  const t = { x: 24, y: 104, w: 1286, h: 560, r: 46 }
+  const g = scene.add.graphics()
+
+  g.fillStyle(0x06251b, 0.32)
+  g.fillRoundedRect(t.x - 8, t.y + 10, t.w + 16, t.h + 16, t.r + 8)
+  g.fillStyle(0x06251b, 0.2)
+  g.fillRoundedRect(t.x - 14, t.y + 16, t.w + 28, t.h + 28, t.r + 14)
+
+  g.fillStyle(COLOR.rimDark, 1)
+  g.fillRoundedRect(t.x, t.y, t.w, t.h, t.r)
+  g.fillStyle(COLOR.rimMain, 1)
+  g.fillRoundedRect(t.x + 3, t.y + 3, t.w - 6, t.h - 6, t.r - 3)
+  g.fillStyle(COLOR.rimLight, 0.5)
+  g.fillRoundedRect(t.x + 6, t.y + 6, t.w - 12, 8, 4)
+
+  g.fillStyle(0xffffff, 0.1)
+  for (let x = t.x + 30; x < t.x + t.w - 20; x += 34)
+  {
+    g.fillTriangle(x, t.y + 17, x + 7, t.y + 10, x + 14, t.y + 17)
+    g.fillTriangle(x, t.y + 27, x + 7, t.y + 34, x + 14, t.y + 27)
+    g.fillTriangle(x, t.y + t.h - 17, x + 7, t.y + t.h - 24, x + 14, t.y + t.h - 17)
+  }
+  for (let y = t.y + 40; y < t.y + t.h - 30; y += 34)
+  {
+    g.fillTriangle(t.x + 17, y, t.x + 10, y + 7, t.x + 17, y + 14)
+    g.fillTriangle(t.x + 27, y, t.x + 34, y + 7, t.x + 27, y + 14)
+    g.fillTriangle(t.x + t.w - 17, y, t.x + t.w - 24, y + 7, t.x + t.w - 17, y + 14)
+  }
+
+  g.lineStyle(10, COLOR.goldEdge, 1)
+  g.strokeRoundedRect(t.x + 18, t.y + 18, t.w - 36, t.h - 36, t.r - 12)
+  g.lineStyle(6, 0xd9a13a, 1)
+  g.strokeRoundedRect(t.x + 18, t.y + 18, t.w - 36, t.h - 36, t.r - 12)
+  g.lineStyle(2, COLOR.goldLight, 0.9)
+  g.strokeRoundedRect(t.x + 18, t.y + 18, t.w - 36, t.h - 36, t.r - 12)
+  g.lineStyle(3, 0x3a1c05, 0.35)
+  g.strokeRoundedRect(t.x + 26, t.y + 26, t.w - 52, t.h - 52, t.r - 18)
 }
 
 /**
@@ -692,26 +865,34 @@ export function drawWoodFrame(scene)
 export function drawCornerTrim(scene, size)
 {
   const s = size || 54
+  const k = 0.55
   const corners = [
-    { x: 30, y: 30, sx: 1, sy: 1 },
-    { x: W - 30, y: 30, sx: -1, sy: 1 },
-    { x: 30, y: H - 30, sx: 1, sy: -1 },
-    { x: W - 30, y: H - 30, sx: -1, sy: -1 }
+    { x: 56, y: 136, sx: 1, sy: 1 },
+    { x: W - 56, y: 136, sx: -1, sy: 1 },
+    { x: 56, y: H - 152, sx: 1, sy: -1 },
+    { x: W - 56, y: H - 152, sx: -1, sy: -1 }
   ]
   corners.forEach((c) =>
   {
     const g = scene.add.graphics({ x: c.x, y: c.y })
     g.scaleX = c.sx
     g.scaleY = c.sy
-    g.lineStyle(3, COLOR.woodTrim, 0.9)
+    g.lineStyle(3, COLOR.goldLight, 0.85)
     g.beginPath()
-    g.moveTo(0, s)
-    g.lineTo(0, s * 0.3)
-    g.arc(0, s * 0.3, s * 0.3, Math.PI, Math.PI * 1.5, false)
-    g.lineTo(s, 0)
+    g.moveTo(0, s * k)
+    g.lineTo(0, s * k * 0.34)
+    g.arc(s * k * 0.34, s * k * 0.34, s * k * 0.34, Math.PI, Math.PI * 1.5, false)
+    g.lineTo(s * k, 0)
     g.strokePath()
-    g.fillStyle(COLOR.woodTrim, 0.95)
-    g.fillCircle(s * 0.18, s * 0.18, 4)
+    g.lineStyle(1.5, 0xffd45e, 0.55)
+    g.beginPath()
+    g.moveTo(7, s * k)
+    g.lineTo(7, s * k * 0.4)
+    g.arc(s * k * 0.4, s * k * 0.4, s * k * 0.4 - 7, Math.PI, Math.PI * 1.5, false)
+    g.lineTo(s * k, 7)
+    g.strokePath()
+    g.fillStyle(0xffe9a8, 0.95)
+    g.fillCircle(11, 11, 3.6)
   })
 }
 
@@ -727,4 +908,50 @@ export function drawCornerTrim(scene, size)
 export function makeText(scene, x, y, text, style)
 {
   return scene.add.text(x, y, text, style)
+}
+
+/**
+ * 绘制深色半透明面板：牌桌 HUD 与玩家名牌统一用此材质
+ * @param {Object} scene Phaser 场景
+ * @param {number} x 左上角 x
+ * @param {number} y 左上角 y
+ * @param {number} w 宽
+ * @param {number} h 高
+ * @param {Object} opts 可选 radius / alpha / border
+ * @returns {Object} Graphics 对象
+ */
+export function drawPanel(scene, x, y, w, h, opts)
+{
+  const o = opts || {}
+  const radius = o.radius === undefined ? 14 : o.radius
+  const alpha = o.alpha === undefined ? 0.42 : o.alpha
+  const g = scene.add.graphics()
+  g.fillStyle(0x061a12, alpha)
+  g.fillRoundedRect(x, y, w, h, radius)
+  g.lineStyle(1.5, 0xffd45e, o.border === undefined ? 0.45 : o.border)
+  g.strokeRoundedRect(x, y, w, h, radius)
+  return g
+}
+
+/**
+ * 预加载牌桌美术资源。路径相对站点基路径，兼容 /ddz/ 与本地根路径部署。
+ * @param {Object} scene Phaser 场景
+ * @returns {void}
+ */
+export function preloadGameArt(scene)
+{
+  const assets = [
+    { key: 'bgTable', url: 'static/game/bg-table.jpg' },
+    { key: 'bgHall', url: 'static/game/bg-hall.jpg' },
+    { key: 'avatar0', url: 'static/game/avatar-0.png' },
+    { key: 'avatar1', url: 'static/game/avatar-1.png' },
+    { key: 'avatar2', url: 'static/game/avatar-2.png' }
+  ]
+  assets.forEach((a) =>
+  {
+    if (!scene.textures.exists(a.key))
+    {
+      scene.load.image(a.key, a.url)
+    }
+  })
 }

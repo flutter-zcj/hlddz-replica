@@ -1,10 +1,8 @@
 <template>
   <view class="ddz-page">
-    <view id="ddz-canvas" class="ddz-canvas"></view>
-    <view v-if="tips" class="ddz-tips">{{ tips }}</view>
-    <view class="ddz-rotate">
-      <view class="rotate-icon"></view>
-      <text class="rotate-txt">请将设备横屏以获得最佳体验</text>
+    <view class="ddz-stage">
+      <view id="ddz-canvas" class="ddz-canvas"></view>
+      <view v-if="tips" class="ddz-tips">{{ tips }}</view>
     </view>
   </view>
 </template>
@@ -44,22 +42,118 @@ export default
 
   beforeDestroy()
   {
+    window.removeEventListener('resize', this.refreshScale);
+    window.removeEventListener('orientationchange', this.refreshScale);
     this.restorePcAdapt();
   },
 
   mounted()
   {
     this.audio = new DdzAudio();
+    window.addEventListener('resize', this.refreshScale);
+    window.addEventListener('orientationchange', this.refreshScale);
     this.boot();
   },
 
   beforeUnmount()
   {
+    window.removeEventListener('resize', this.refreshScale);
+    window.removeEventListener('orientationchange', this.refreshScale);
     this.shutdown();
   },
 
   methods:
   {
+    /**
+     * 屏幕旋转或尺寸变化后重算画布位置与缩放
+     * @returns {void}
+     */
+    refreshScale()
+    {
+      setTimeout(() =>
+      {
+        this.layoutCanvas();
+      }, 260);
+    },
+
+    /**
+     * 是否竖屏（竖屏时整个舞台旋转 90 度显示横屏内容）
+     * @returns {boolean} 是否竖屏
+     */
+    isPortrait()
+    {
+      return window.innerHeight > window.innerWidth;
+    },
+
+    /**
+     * 手动计算画布等比尺寸与居中位置。竖屏时舞台宽高互换，
+     * 因此可用尺寸取窗口的长边做宽、短边做高。
+     * @returns {void}
+     */
+    layoutCanvas()
+    {
+      if (!this.game || !this.game.canvas)
+      {
+        return;
+      }
+      const canvas = this.game.canvas;
+      const portrait = this.isPortrait();
+      const availW = portrait ? window.innerHeight : window.innerWidth;
+      const availH = portrait ? window.innerWidth : window.innerHeight;
+      const k = Math.min(availW / 1334, availH / 750);
+      const cw = Math.round(1334 * k);
+      const ch = Math.round(750 * k);
+      canvas.style.position = 'absolute';
+      canvas.style.width = cw + 'px';
+      canvas.style.height = ch + 'px';
+      canvas.style.left = Math.round((availW - cw) / 2) + 'px';
+      canvas.style.top = Math.round((availH - ch) / 2) + 'px';
+      canvas.style.margin = '0';
+    },
+
+    /**
+     * 接管指针坐标换算：竖屏旋转后屏幕坐标与舞台坐标存在 90 度旋转关系，
+     * Phaser 默认按 canvas 包围盒换算会错位，这里统一换算到逻辑分辨率。
+     * @returns {void}
+     */
+    patchPointer()
+    {
+      const game = this.game;
+      if (!game || !game.input)
+      {
+        return;
+      }
+      game.input.transformPointer = (pointer, pageX, pageY, wasMove) =>
+      {
+        const canvas = game.canvas;
+        const portrait = this.isPortrait();
+        const viewW = window.innerWidth;
+        let lx = pageX;
+        let ly = pageY;
+        if (portrait)
+        {
+          lx = pageY;
+          ly = viewW - pageX;
+        }
+        const x = (lx - canvas.offsetLeft) * (1334 / canvas.clientWidth);
+        const y = (ly - canvas.offsetTop) * (750 / canvas.clientHeight);
+        const pos = pointer.position;
+        const prev = pointer.prevPosition;
+        prev.x = pos.x;
+        prev.y = pos.y;
+        const smooth = pointer.smoothFactor;
+        if (wasMove && smooth !== 0)
+        {
+          pos.x = x * smooth + prev.x * (1 - smooth);
+          pos.y = y * smooth + prev.y * (1 - smooth);
+        }
+        else
+        {
+          pos.x = x;
+          pos.y = y;
+        }
+      };
+    },
     /**
      * 解除宿主工程的 PC 宽屏适配，避免横屏页面被装入竖屏模拟框
      * @returns {void}
@@ -121,14 +215,18 @@ export default
           parent: 'ddz-canvas',
           width: 1334,
           height: 750,
-          backgroundColor: '#4a0f09',
+          backgroundColor: '#0b3324',
           scale:
           {
-            mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_BOTH
+            mode: Phaser.Scale.NONE,
+            width: 1334,
+            height: 750,
+            autoCenter: Phaser.Scale.NO_CENTER
           },
           scene: [SceneClass]
         });
+        this.layoutCanvas();
+        this.patchPointer();
         this.connect();
       });
     },
@@ -426,13 +524,9 @@ export default
 </script>
 
 <style lang="scss" scoped>
-.ddz-page { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; background: #4a0f09; }
+.ddz-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; background: #07291a; }
+.ddz-stage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; transform-origin: 0 0; }
 .ddz-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-.ddz-tips { position: absolute; bottom: 120rpx; left: 50%; transform: translateX(-50%); padding: 12rpx 28rpx; border-radius: 32rpx; background: rgba(0, 0, 0, 0.6); color: #ffe9a8; font-size: 26rpx; }
-.ddz-back { position: absolute; top: 40rpx; left: 24rpx; padding: 10rpx 24rpx; border-radius: 28rpx; background: rgba(0, 0, 0, 0.45); color: #ffffff; font-size: 26rpx; }
-.ddz-rotate { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999; background: #4a0f09; flex-direction: column; align-items: center; justify-content: center; }
-.rotate-icon { width: 120rpx; height: 76rpx; border: 8rpx solid #ffd45e; border-radius: 14rpx; margin-bottom: 30rpx; animation: ddz-turn 1.6s ease-in-out infinite; }
-.rotate-txt { color: #ffe9a8; font-size: 30rpx; text-align: center; padding: 0 60rpx; }
-@keyframes ddz-turn { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(90deg); } }
-@media (orientation: portrait) { .ddz-rotate { display: flex; } }
+.ddz-tips { position: absolute; bottom: 100rpx; left: 50%; transform: translateX(-50%); padding: 12rpx 28rpx; border-radius: 32rpx; background: rgba(0, 0, 0, 0.6); color: #ffe9a8; font-size: 26rpx; z-index: 20; }
+@media (orientation: portrait) { .ddz-stage { width: 100vh; height: 100vw; transform: translateX(100vw) rotate(90deg); } }
 </style>

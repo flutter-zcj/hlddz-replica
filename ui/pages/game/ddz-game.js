@@ -23,6 +23,8 @@ import {
   drawPatternTag,
   drawWoodFrame,
   drawCornerTrim,
+  drawPanel,
+  preloadGameArt,
   formatMoney,
   css
 } from './ddz-theme.js'
@@ -73,6 +75,15 @@ export default function createDdzScene(Phaser, hooks)
     }
 
     /**
+     * 预加载美术资源：背景与三个角色立绘头像
+     * @returns {void}
+     */
+    preload()
+    {
+      preloadGameArt(this)
+    }
+
+    /**
      * 构建静态场景骨架
      * @returns {void}
      */
@@ -119,50 +130,50 @@ export default function createDdzScene(Phaser, hooks)
     buildTopBar()
     {
       const g = this.add.graphics()
-      g.fillStyle(0x5e1809, 1)
-      g.fillRect(0, 0, W, 88)
-      g.fillStyle(COLOR.barBg, 1)
-      g.fillRect(0, 0, W, 82)
-      g.fillStyle(0x8a2c14, 1)
-      g.fillRect(0, 0, W, 38)
+      g.fillStyle(0x061a12, 0.46)
+      g.fillRect(0, 0, W, 92)
+      g.fillStyle(0x061a12, 0.24)
+      g.fillRect(0, 92, W, 18)
       g.fillStyle(0xffffff, 0.08)
-      g.fillRect(0, 0, W, 10)
-      g.lineStyle(3, COLOR.woodTrim, 0.9)
-      g.lineBetween(0, 82, W, 82)
-      g.lineStyle(1.5, 0x3a0c06, 0.6)
-      g.lineBetween(0, 86, W, 86)
+      g.fillRect(0, 0, W, 2)
 
       this.buildIconButton(46, 44, 'gift', () => this.toast('每日礼包待领取'))
       this.buildIconButton(104, 44, 'smile', () => this.toggleChat())
 
+      const chip = this.add.graphics()
+      chip.fillStyle(0x061a12, 0.5)
+      chip.fillRoundedRect(148, 16, 236, 58, 16)
+      chip.lineStyle(1.5, 0xffd45e, 0.5)
+      chip.strokeRoundedRect(148, 16, 236, 58, 16)
+      chip.fillStyle(0xffd45e, 0.9)
+      chip.fillCircle(170, 45, 3)
+
       this.roomText = this.add
-        .text(156, 28, '经典场 · 1/3', {
+        .text(184, 34, '经典场 · 1/3', {
           fontFamily: 'sans-serif',
           fontSize: '23px',
-          color: '#ffe9c4',
+          color: '#ffffff',
           fontStyle: 'bold'
         })
         .setOrigin(0, 0.5)
-      this.roomText.setShadow(0, 2, '#3a0c06', 2)
+      this.roomText.setShadow(0, 2, '#00220f', 3)
       this.baseText = this.add
-        .text(156, 60, '底分 0', {
+        .text(184, 59, '底分 0', {
           fontFamily: 'sans-serif',
-          fontSize: '21px',
-          color: '#ffcf8a'
+          fontSize: '19px',
+          color: '#ffd9a0'
         })
         .setOrigin(0, 0.5)
 
       const frame = this.add.graphics()
-      frame.fillStyle(0x3a0c06, 0.9)
-      frame.fillRoundedRect(592, 8, 150, 68, 12)
-      frame.fillStyle(0x9c2a12, 1)
-      frame.fillRoundedRect(596, 12, 142, 60, 10)
-      frame.lineStyle(2.5, COLOR.woodTrim, 1)
-      frame.strokeRoundedRect(596, 12, 142, 60, 10)
-      frame.lineStyle(1.5, 0xfff0c4, 0.35)
-      frame.strokeRoundedRect(602, 18, 130, 48, 8)
+      frame.fillStyle(0x061a12, 0.62)
+      frame.fillRoundedRect(592, 10, 150, 66, 16)
+      frame.lineStyle(3, 0xffd45e, 0.95)
+      frame.strokeRoundedRect(592, 10, 150, 66, 16)
+      frame.lineStyle(1.5, 0xfff6d6, 0.45)
+      frame.strokeRoundedRect(598, 16, 138, 54, 12)
 
-      this.bottomSlot = this.add.container(667, 42)
+      this.bottomSlot = this.add.container(667, 43)
 
       this.buildIconButton(1222, 44, 'gear', () => this.toast('设置'))
       this.buildIconButton(1280, 44, 'door', () =>
@@ -186,18 +197,18 @@ export default function createDdzScene(Phaser, hooks)
     {
       const box = this.add.container(x, y)
       const g = this.add.graphics()
-      g.fillStyle(0x3a0c06, 0.55)
-      g.fillCircle(0, 2, 26)
-      g.fillStyle(0xc8873a, 1)
-      g.fillCircle(0, 0, 25)
-      g.fillStyle(0xeab05c, 1)
-      g.fillCircle(0, -2, 22)
-      g.lineStyle(2, 0xfff0c4, 0.7)
+      g.fillStyle(0x061a12, 0.55)
+      g.fillCircle(0, 3, 26)
+      g.fillStyle(0xffffff, 0.12)
+      g.fillCircle(0, -1, 23)
+      g.lineStyle(2.5, 0xffd45e, 0.85)
       g.strokeCircle(0, 0, 25)
+      g.lineStyle(1, 0xfff6d6, 0.5)
+      g.strokeCircle(0, 0, 21)
 
       const ic = this.add.graphics()
-      ic.lineStyle(3, 0x6b3a10, 1)
-      ic.fillStyle(0x6b3a10, 1)
+      ic.lineStyle(3, 0xffe9a8, 1)
+      ic.fillStyle(0xffe9a8, 1)
       if (kind === 'gift')
       {
         ic.fillRoundedRect(-13, -4, 26, 16, 3)
@@ -253,23 +264,27 @@ export default function createDdzScene(Phaser, hooks)
         .text(W - 54, 152, '--:--', {
           fontFamily: 'sans-serif',
           fontSize: '26px',
-          color: '#9a5a18'
+          color: '#ffffff',
+          fontStyle: 'bold'
         })
         .setOrigin(1, 0.5)
+      this.clockText.setShadow(0, 2, '#001a10', 4)
       this.winText = this.add
         .text(W - 54, 192, '胜局 0/0', {
           fontFamily: 'sans-serif',
           fontSize: '20px',
-          color: '#b07a34'
+          color: '#ffe9c8'
         })
         .setOrigin(1, 0.5)
+      this.winText.setShadow(0, 2, '#001a10', 3)
       this.roundText = this.add
         .text(W - 54, 226, '对局 0/0', {
           fontFamily: 'sans-serif',
           fontSize: '20px',
-          color: '#b07a34'
+          color: '#ffe9c8'
         })
         .setOrigin(1, 0.5)
+      this.roundText.setShadow(0, 2, '#001a10', 3)
     }
 
     /**
@@ -283,31 +298,37 @@ export default function createDdzScene(Phaser, hooks)
       {
         const box = this.add.container(pos.x, pos.y)
         const avatar = drawAvatar(this, 0, 0, 46, '', i)
+        const plate = this.add.graphics()
+        plate.fillStyle(0x061a12, 0.42)
+        plate.fillRoundedRect(-62, 52, 124, 54, 14)
+        plate.lineStyle(1.2, 0xffd45e, 0.35)
+        plate.strokeRoundedRect(-62, 52, 124, 54, 14)
         const nameText = this.add
           .text(0, 60, '', {
             fontFamily: 'sans-serif',
-            fontSize: '22px',
-            color: '#5a2c08',
+            fontSize: '21px',
+            color: '#ffffff',
             fontStyle: 'bold'
           })
           .setOrigin(0.5, 0)
-        const coinIcon = this.add.container(0, 90)
-        const coinBg = this.add.graphics()
-        coinBg.fillStyle(0x7a3c0a, 0.14)
-        coinBg.fillRoundedRect(-48, -12, 96, 24, 12)
-        coinIcon.add(coinBg)
-        const bean = drawBean(this, -34, 0, 18)
+        nameText.setShadow(0, 2, '#001a10', 3)
+        const coinIcon = this.add.container(0, 88)
+        const bean = drawBean(this, -30, 0, 17)
         const coinText = this.add
-          .text(-22, 0, '0', { fontFamily: 'sans-serif', fontSize: '18px', color: '#6b3a10' })
+          .text(-18, 0, '0', { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffe0a8' })
           .setOrigin(0, 0.5)
         coinIcon.add([bean, coinText])
 
         const lordTag = this.add.container(0, -58)
         const lg = this.add.graphics()
+        lg.fillStyle(0x2a0c02, 0.35)
+        lg.fillRoundedRect(-34, -12, 68, 28, 9)
         lg.fillStyle(0xd8352a, 1)
-        lg.fillRoundedRect(-33, -14, 66, 28, 8)
+        lg.fillRoundedRect(-33, -14, 66, 28, 9)
+        lg.fillStyle(0xff6a4a, 0.5)
+        lg.fillRoundedRect(-30, -11, 60, 10, 6)
         lg.lineStyle(2, 0xffe9a8, 1)
-        lg.strokeRoundedRect(-33, -14, 66, 28, 8)
+        lg.strokeRoundedRect(-33, -14, 66, 28, 9)
         const lt = this.add
           .text(0, 0, '地主', {
             fontFamily: 'sans-serif',
@@ -327,7 +348,7 @@ export default function createDdzScene(Phaser, hooks)
           badge.setPosition(60, -32)
           lordTag.setPosition(-56, -46)
         }
-        box.add([avatar, nameText, coinIcon, lordTag, badge])
+        box.add([plate, avatar, nameText, coinIcon, lordTag, badge])
         this.seatNodes.push({ box, avatar, nameText, coinText, lordTag, badge, role: i })
       })
 
@@ -366,10 +387,10 @@ export default function createDdzScene(Phaser, hooks)
     buildHandArea()
     {
       const tray = this.add.graphics()
-      tray.fillStyle(0x3a0c06, 0.55)
-      tray.fillRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, CARD_H / 2 + 66)
-      tray.fillStyle(COLOR.woodTrim, 0.45)
-      tray.fillRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, 3)
+      tray.fillStyle(0x061a12, 0.34)
+      tray.fillRoundedRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, CARD_H / 2 + 62, 18)
+      tray.lineStyle(1.5, 0xffd45e, 0.28)
+      tray.strokeRoundedRect(144, HAND_Y - CARD_H / 2 - 30, W - 174, CARD_H / 2 + 62, 18)
       this.handContainer = this.add.container(0, 0)
       this.selectedLabel = this.add
         .text(262, HAND_Y - 128, '', {
@@ -423,12 +444,12 @@ export default function createDdzScene(Phaser, hooks)
     buildBottomBar()
     {
       const g = this.add.graphics()
-      g.fillStyle(0x4a0f09, 1)
-      g.fillRect(0, H - 74, W, 74)
-      g.fillStyle(COLOR.barBg, 1)
-      g.fillRect(0, H - 70, W, 70)
-      g.lineStyle(3, COLOR.woodTrim, 0.9)
-      g.lineBetween(0, H - 74, W, H - 74)
+      g.fillStyle(0x061a12, 0.62)
+      g.fillRect(0, H - 72, W, 72)
+      g.fillStyle(0x061a12, 0.3)
+      g.fillRect(0, H - 88, W, 16)
+      g.lineStyle(1.5, 0xffd45e, 0.4)
+      g.lineBetween(0, H - 72, W, H - 72)
 
       this.multiText = this.add
         .text(36, H - 36, '倍数 x1', {

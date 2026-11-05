@@ -150,25 +150,25 @@
             </view>
 
             <view class="cell cell--purple cell--sm" @click="onEntry('比赛')">
-              <view class="cell-ico cell-ico--cup"></view>
+              <view class="cell-badge cell-badge--cup"><text class="badge-txt">赛</text></view>
               <text class="cell-name cell-name--plain">比赛</text>
             </view>
             <view class="cell cell--purple cell--sm" @click="onEntry('好友约战')">
               <view class="cell-free">免费</view>
-              <view class="cell-ico cell-ico--friend"></view>
+              <view class="cell-badge cell-badge--friend"><text class="badge-txt">友</text></view>
               <text class="cell-name cell-name--plain">好友约战</text>
             </view>
             <view class="cell cell--purple cell--sm" @click="onEntry('更多游戏')">
-              <view class="cell-ico cell-ico--grid"></view>
+              <view class="cell-badge cell-badge--grid"><text class="badge-txt">游</text></view>
               <text class="cell-name cell-name--plain">更多游戏</text>
             </view>
 
             <view class="cell cell--purple cell--sm" @click="onEntry('每日签到')">
-              <view class="cell-ico cell-ico--sign"></view>
+              <view class="cell-badge cell-badge--sign"><text class="badge-txt">签</text></view>
               <text class="cell-name cell-name--plain">每日签到</text>
             </view>
             <view class="cell cell--purple cell--sm" @click="onEntry('幸运转盘')">
-              <view class="cell-ico cell-ico--wheel"></view>
+              <view class="cell-badge cell-badge--wheel"><text class="badge-txt">转</text></view>
               <text class="cell-name cell-name--plain">幸运转盘</text>
             </view>
           </view>
@@ -207,11 +207,6 @@
           </view>
           <text class="nav-txt">{{ item.name }}</text>
         </view>
-      </view>
-
-      <view class="hall-rotate">
-        <view class="rotate-icon"></view>
-        <text class="rotate-txt">请将设备横屏以获得最佳体验</text>
       </view>
     </view>
   </view>
@@ -387,9 +382,10 @@ export default
      */
     fit()
     {
-      const w = window.innerWidth / DESIGN_W;
-      const h = window.innerHeight / DESIGN_H;
-      this.scale = Math.min(w, h);
+      const portrait = window.innerHeight > window.innerWidth;
+      const vw = portrait ? window.innerHeight : window.innerWidth;
+      const vh = portrait ? window.innerWidth : window.innerHeight;
+      this.scale = Math.min(vw / DESIGN_W, vh / DESIGN_H);
     },
 
     /**
@@ -445,11 +441,13 @@ export default
 </script>
 
 <style lang="scss" scoped>
-.stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: #93aed2; overflow: hidden; }
+.stage { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: #93aed2; overflow: hidden; transform-origin: 0 0; }
+@media (orientation: portrait) { .stage { width: 100vh; height: 100vw; transform: translateX(100vw) rotate(90deg); } }
 .hall { position: relative; width: 1334px; height: 750px; overflow: hidden; flex-shrink: 0; }
 .flex1 { flex: 1; }
 
 .hall-sky { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, #eaf2fc 0%, #d6e3f6 30%, #bfd2ec 58%, #a6bfdf 82%, #93aed2 100%); }
+.hall-sky::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('../../static/game/bg-hall.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.92; }
 .hall-city { position: absolute; left: 0; right: 0; bottom: 96px; height: 240px; opacity: 0.6; -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 46%, #000000 100%); }
 
 .city-tower { position: absolute; left: 430px; bottom: 70px; width: 52px; height: 96px; background: #8ba7cb; border-radius: 4px 4px 0 0; }
@@ -599,6 +597,13 @@ export default
 .cell-ico--grid { background: linear-gradient(180deg, #ffffff, #d8e0f5); border-radius: 6px; box-shadow: inset 13px 0 0 -8px #9a86e8, inset -13px 0 0 -8px #9a86e8, inset 0 13px 0 -8px #9a86e8, inset 0 -13px 0 -8px #9a86e8; }
 .cell-ico--sign { background: linear-gradient(180deg, #fffdf4, #e8dfc8); border-radius: 6px; box-shadow: inset 0 -12px 0 -6px #9a86e8; }
 .cell-ico--wheel { border-radius: 50%; background: conic-gradient(#ffd45e 0deg 60deg, #ffffff 60deg 120deg, #ffd45e 120deg 180deg, #ffffff 180deg 240deg, #ffd45e 240deg 300deg, #ffffff 300deg 360deg); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9); }
+.cell-badge { position: absolute; left: 50%; top: 6px; width: 46px; height: 46px; margin-left: -23px; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 2.5px solid rgba(255, 255, 255, 0.95); box-shadow: 0 3px 0 rgba(60, 30, 90, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.55); }
+.badge-txt { font-size: 24px; color: #ffffff; font-weight: bold; text-shadow: 0 2px 0 rgba(70, 30, 0, 0.35); }
+.cell-badge--cup { background: linear-gradient(180deg, #ffd45e, #f08a12); }
+.cell-badge--friend { background: linear-gradient(180deg, #7fe0ff, #2b8cd8); }
+.cell-badge--grid { background: linear-gradient(180deg, #b6a4ff, #6f52d8); }
+.cell-badge--sign { background: linear-gradient(180deg, #ffb08a, #e8552a); }
+.cell-badge--wheel { background: linear-gradient(180deg, #8ff0c8, #17a97a); }
 .cell--purple .cell-name--plain { color: #ffffff; }
 .cell-free { position: absolute; left: 0; top: 0; padding: 0 10px; height: 24px; line-height: 24px; background: #e5381f; border-radius: 0 0 12px 0; color: #fff2c8; font-size: 14px; font-weight: bold; }
 
@@ -633,10 +638,4 @@ export default
 .nav-icon--more { background: linear-gradient(180deg, #ffe08a, #e08a10); }
 .nav-glyph { font-size: 23px; color: #6b2c00; font-weight: bold; }
 .nav-txt { margin-top: 4px; font-size: 15px; color: #ffe9c0; }
-
-.hall-rotate { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; background: #93aed2; flex-direction: column; align-items: center; justify-content: center; }
-.rotate-icon { width: 110px; height: 70px; border: 8px solid #f0a518; border-radius: 14px; margin-bottom: 28px; animation: ddz-turn 1.6s ease-in-out infinite; }
-.rotate-txt { color: #27476e; font-size: 28px; text-align: center; padding: 0 60px; font-weight: bold; }
-@keyframes ddz-turn { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(90deg); } }
-@media (orientation: portrait) { .hall-rotate { display: flex; } }
 </style>
